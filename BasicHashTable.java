@@ -18,11 +18,11 @@ public class BasicHashTable<T> {
 	// inserts
 	public void insert(int key, T value) {
 		// rehashing check
-		if(curSize / tableSize >= loadFactor) {
+		if(curSize > tableSize * loadFactor) {
 			System.out.println("We need to rehash this thing...");
 			ArrayList<Node<T>> list = new ArrayList<Node<T>>();
 			list = getContents();
-			
+			curSize = 0;
 			tableSize = (tableSize * 3) +1;
 			hTable = new Node [tableSize];
 			for(int i = 0; i < list.size(); i++) {
