@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
 // hash table using open addressing
+// also implements custom hash algorithm
 
 public class BasicHashTable<T> {
 	private double loadFactor = .75;
