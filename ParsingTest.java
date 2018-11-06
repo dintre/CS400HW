@@ -32,12 +32,15 @@ public class ParsingTest {
 				//Object innerObj = new Object();
 				JSONObject courseObj = new JSONObject();
 				courseObj = (JSONObject) itr.next();
+				JSONArray set = (JSONArray) courseObj.get("prerequisites");
+				System.out.println(set);
 				
-				courseObj.get("prerequisites");
-				System.out.println(courseObj);
+				String values = (String) courseObj.get("name");
+				System.out.println(values);
 				
-				courseObj.get("name");
-		        System.out.println(courseObj);
+				//courseObj.get("prerequisites");
+				//System.out.println(courseObj);
+
 				
 				
 		        System.out.println();
