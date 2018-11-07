@@ -51,7 +51,22 @@ public class GraphImpl<T> implements GraphADT<T> {
     	// add vertex and its prereqs to the hashmap
     	// verticesMap.put(vertex, value) // TODO - add prereqs too
     	// check whether or not vertex already exists in map
+    	if(verticesMap.containsKey(vertex)) {
+    		System.out.println("Dupliate vertex");
+    		return;
+    	}
     	
+    	// convert an array of prereqs to a list to be added/put
+    	//Entity current = new Entity();
+    	//current.getPrerequisites();
+    	ArrayList<T> preList = new ArrayList<T>();
+		T [] entityArray = (T []) ((Entity) vertex).getPrerequisites();
+		int index = 0;
+		while(entityArray [index] != null) {
+    		preList.add(entityArray[index]);
+    	}
+    	
+    	verticesMap.put(vertex, preList);
     	
     	
     	
