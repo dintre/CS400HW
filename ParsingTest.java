@@ -19,24 +19,25 @@ public class ParsingTest {
 	        
 	        // iterates through array within a course
 	        Iterator itr = courses.iterator();
-	        
-	        //
-	        
-	        JSONObject innerJo = new JSONObject();
 	
 	        // iterates through courses array
 	        // each time it's a different course
 			while(itr.hasNext()) {
-				System.out.println(itr.next());
+				//System.out.println("outer while loop ------------ " + itr.next());
 				
 				//Object innerObj = new Object();
-				JSONObject courseObj = new JSONObject();
-				courseObj = (JSONObject) itr.next();
+				JSONObject courseObj = (JSONObject) itr.next();
+				//System.out.println(courseObj);
 				JSONArray set = (JSONArray) courseObj.get("prerequisites");
-				System.out.println(set);
+				Iterator prereqIterator = set.iterator();
+				while(prereqIterator.hasNext()) {
+					String prereqValue = (String) prereqIterator.next();
+					System.out.println("prereq array --------------- " + prereqValue);
+				}
+
 				
 				String values = (String) courseObj.get("name");
-				System.out.println(values);
+				System.out.println("name values  --------------- " + values);
 				
 				//courseObj.get("prerequisites");
 				//System.out.println(courseObj);
