@@ -1,0 +1,104 @@
+import java.io.FileReader;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+public class ParsingTest {
+	
+	public Entity[] createEntity(String fileName) throws Exception {
+        Entity [] entities = new Entity[20];
+
+		try {
+	        // parsing fileName
+	        Object obj = new JSONParser().parse(new FileReader(fileName)); 
+			// typecasting obj to JSONObject - courses object
+			JSONObject jo = (JSONObject) obj; 
+	        // creating array - list of courses
+	        JSONArray courses = (JSONArray) jo.get("courses");	
+	        
+	        // iterates through array within a course
+	        Iterator itr = courses.iterator();
+	        
+	        int index = 0;
+	        // iterates through courses array
+	        // each time it's a different course
+			while(itr.hasNext()) {
+				//System.out.println("outer while loop ------------ " + itr.next());
+				
+				//Object innerObj = new Object();
+				JSONObject courseObj = (JSONObject) itr.next();
+				//System.out.println(courseObj);
+				JSONArray set = (JSONArray) courseObj.get("prerequisites");
+				Iterator prereqIterator = set.iterator();
+				
+				// array to add to Entity object being created
+				String [] prereqArray = new String [set.size()];
+				int otherIndex = 0;
+				while(prereqIterator.hasNext()) {
+					String prereqValue = (String) prereqIterator.next();
+					System.out.println("prereq array --------------- " + prereqValue);
+					prereqArray [otherIndex] = prereqValue;
+					otherIndex++;
+				}
+
+				
+				String values = (String) courseObj.get("name");
+				System.out.println("name values  --------------- " + values);
+				Entity newEntity = new Entity();
+				newEntity.setName(values);
+				entities[index] = newEntity;
+				newEntity.setPrerequisites(prereqArray);
+				
+				index++;
+		        System.out.println();
+			} // while
+			
+		} // try
+		
+		catch(Exception e) {
+			System.out.println("Caught exception while parsing JSON file. ");
+			System.out.println(e);
+			e.printStackTrace();
+		} // catch
+		
+		int newIndex = 0;
+		while(entities[newIndex] != null) {
+			System.out.println(entities[newIndex].getName());
+			String [] preTest = (String[]) entities[newIndex].getPrerequisites();
+			System.out.println(preTest[0]);
+			newIndex++;
+			System.out.println();
+		}
+		return entities;
+	
+	} // entity create method()
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public static void main(String[] args) {
+		ParsingTest util = new ParsingTest();
+    	try {
+			util.createEntity("valid.JSON");
+			
+			
+		} 
+    	catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+} // class parsing test
