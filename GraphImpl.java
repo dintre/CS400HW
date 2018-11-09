@@ -41,6 +41,10 @@ public class GraphImpl<T> implements GraphADT<T> {
         // you may initialize additional data members here
     } // constructor
 
+    /*
+     * (non-Javadoc)
+     * @see GraphADT#addVertex(java.lang.Object)
+     */
     public void addVertex(T vertex) {
     	if(vertex == null) {
     		System.out.println("Vertex was null. Not adding. ");
@@ -57,14 +61,15 @@ public class GraphImpl<T> implements GraphADT<T> {
     	}
     	
     	// convert an array of prereqs to a list to be added/put
-    	//Entity current = new Entity();
-    	//current.getPrerequisites();
+    	// Entity current = new Entity();
+    	// current.getPrerequisites();
     	ArrayList<T> preList = new ArrayList<T>();
 		T [] entityArray = (T []) ((Entity) vertex).getPrerequisites();
-		int index = 0;
-		while(entityArray [index] != null) {
-    		preList.add(entityArray[index]);
-    	}
+		for (int i = 0; i < entityArray.length; i++) {
+    		preList.add(entityArray[i]);
+    		System.out.println(entityArray[i]);
+    		
+    	} // for
     	
     	verticesMap.put(vertex, preList);
     	
@@ -130,8 +135,18 @@ public class GraphImpl<T> implements GraphADT<T> {
     } // printGraph()
     
     public static void main(String[] args) throws FileNotFoundException {
+    	GraphImpl<Entity> testGraph = new GraphImpl<Entity>();
     	
+    	Entity testCourse = new Entity();
+    	testCourse.setName("TJD 300");
+    	String [] prereqs = new String [] {"TJD 100", "TJD 202"};
+    	testCourse.setPrerequisites(prereqs);
     	
+    	testGraph.addVertex(testCourse);
+    	
+    	System.out.println();
+    	System.out.println("The graph visualizing method: ");
+    	testGraph.printGraph();
     	
 	} // Main()
     
