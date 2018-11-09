@@ -21,7 +21,7 @@ import org.json.simple.parser.JSONParser;
 /**
  * Filename:   CourseSchedulerUtil.java
  * Project:    p4
- * Authors:    Debra Deppeler
+ * Authors:    Debra Deppeler, Trevor Dinsmoor
  * 
  * Use this class for implementing Course Planner
  * @param <T> represents type
@@ -53,62 +53,57 @@ public class CourseSchedulerUtil<T> {
     @SuppressWarnings("rawtypes")
     public Entity[] createEntity(String fileName) throws Exception {
     	
-    	try {
-            // parsing fileName
-            Object obj = new JSONParser().parse(new FileReader(fileName)); 
-    		// typecasting obj to JSONObject 
-    		JSONObject jo = (JSONObject) obj; 
-            // creating array 
-            JSONArray courses = (JSONArray) jo.get("courses");
-            
-            // for prereqs
+		try {
+	        // parsing fileName
+	        Object obj = new JSONParser().parse(new FileReader(fileName)); 
+			// typecasting obj to JSONObject - courses object
+			JSONObject jo = (JSONObject) obj; 
+	        // creating array - list of courses
+	        JSONArray courses = (JSONArray) jo.get("courses");	
+	        
+	        // iterates through array within a course
+	        Iterator itr = courses.iterator();
+	        
+	        Entity [] entities = new Entity[courses.size()]; // array to be returned
+	
+	        // iterates through courses array
+	        // each time it's a different course
+			while(itr.hasNext()) {
+				// setting up for defining and parsing prerequisites
+				JSONObject courseObj = (JSONObject) itr.next();
+				JSONArray set = (JSONArray) courseObj.get("prerequisites");
+				Iterator prereqIterator = set.iterator();
+				String [] prerequisites = new String [set.size()]; // array to store prereqs
+				int courseIndex = 0;
+				int prereqIndex = 0; // index for setting prereq array values
+				while(prereqIterator.hasNext()) {
+					String prereqValue = (String) prereqIterator.next();
+					// Entity newCourse = new Entity(); // create the entity object
+					// newCourse.setName(prereqValue); // TODO - do I need this object?
+					prerequisites[prereqIndex] = prereqValue;
+					prereqIndex++; // increment index
+				} // inner while
 
-            
-            // iterates through array within a course
-            Iterator itr = courses.iterator();
-            // iterates through each field within a course (i.e. name, prereqs)
-            Iterator<Map.Entry> innerItr;
+				String nameValue = (String) courseObj.get("name");
+				Entity newerCourse = new Entity();
+				newerCourse.setName(nameValue);
+				newerCourse.setPrerequisites(prerequisites);
+		        entities[courseIndex] = newerCourse;
+		        courseIndex++; // increment index since done parsing this course
+			} // while
 
-            // iterates through courses array
-            // each time it's a different course
-    		while(itr.hasNext()) {
-    			innerItr = ((Map) itr.next()).entrySet().iterator();
-    			System.out.println();
-    			
-    			// iterates through map pairs in a course
-    			// first it's the prereqs
-    			// second it's the course name
-    			while(innerItr.hasNext()) {
-    				// pairs are: name + <courseName>
-    				//            prerequisites + <array of prereqs>
-    				Map.Entry pair = innerItr.next();
-    				
-    				// handle prereqs array
-    	            JSONObject pjo = (JSONObject) obj;
-    	            JSONArray prereqs = (JSONArray) pjo.get("prerequisites");
-    	            Iterator preItr = prereqs.iterator();
-        			preItr = ((Map) innerItr.next()).entrySet().iterator();
-    	            while(preItr.hasNext()) {
-        				System.out.println(pair.getKey() + " : " + pair.getValue());
-
-    	            }
-    				
-    				System.out.println(pair.getKey() + " : " + pair.getValue());
-    				
-    			} // while
-
-    		} // while
-    		
-    	} // try
-    	
-    	catch(Exception e) {
-    		System.out.println("Caught exception while parsing JSON file. ");
-    		System.out.println(e);
-    		e.printStackTrace();
-    	} // catch
-        return null;
-        
-    } // createEntity()
+			return entities; // array of new entities (courses) being returned
+	
+		} // try
+		
+		catch(Exception e) {
+			System.out.println("Caught exception while parsing JSON file. ");
+			System.out.println(e);
+			e.printStackTrace();
+			return null; // no array to return if there is an exception
+		} // catch		
+	
+	} // createEntity()
     
     
     /**
@@ -125,7 +120,7 @@ public class CourseSchedulerUtil<T> {
     
     /**
      * Returns all the unique available courses
-     * @return the sorted list of all available courses
+     * @return the sorted list set of all available courses
      */
     public Set<T> getAllCourses() {
         //TODO: implement this method
