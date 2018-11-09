@@ -137,7 +137,36 @@ public class JUNITGraphs {
 		}
 	}
 	
-	
+	@Test
+	public void test_addAndCheckNumberOfEdges() {
+		String testName = "addAndCheckNumberOfEdges";
+		try {
+			GraphImpl<Entity> testGraph = new GraphImpl<Entity>();
+	    	Entity testCourse = new Entity();
+	    	testCourse.setName("TJD 300");
+	    	String [] prereqs = new String [] {"TJD 100", "TJD 202"};
+	    	testCourse.setPrerequisites(prereqs);
+	    	testGraph.addVertex(testCourse);
+	    	
+	    	Entity testCourse2 = new Entity();
+	    	testCourse2.setName("TJD 450");
+	    	String [] prereqs2 = new String [] {"TJD 233"};
+	    	testCourse2.setPrerequisites(prereqs2);
+	    	testGraph.addVertex(testCourse2);
+	    	
+	    	Entity testCourse3 = new Entity();
+	    	testCourse3.setName("TJD 107");
+	    	String [] prereqs3 = new String [] {};
+	    	testCourse3.setPrerequisites(prereqs3);
+	    	testGraph.addVertex(testCourse3);
+	    	
+			assertEquals(3, testGraph.size());
+		}
+		catch (Exception e){
+			System.out.println("Caught Exception in " + testName);
+			fail();
+		}
+	}
 	
 	
 	
