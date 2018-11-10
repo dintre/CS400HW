@@ -7,15 +7,6 @@ import org.junit.Test;
 
 public class JUNITGraphs {
 
-	@Before
-	public void setUp() throws Exception {
-
-	}
-
-	@After
-	public void tearDown() throws Exception {
-	}
-
 	@Test
 	public void test_addOneEntity() {
 		String testName = "addOneEntity";

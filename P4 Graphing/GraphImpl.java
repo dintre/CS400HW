@@ -76,7 +76,6 @@ public class GraphImpl<T> implements GraphADT<T> {
 		T [] entityArray = (T []) ((Entity) vertex).getPrerequisites();
 		for (int i = 0; i < entityArray.length; i++) {
     		preList.add(entityArray[i]);
-    		System.out.println(entityArray[i]);
     	} // for
     	
     	verticesMap.put(vertex, preList);
@@ -201,8 +200,7 @@ public class GraphImpl<T> implements GraphADT<T> {
      * @return number of edges in the graph.
      */
     public int size() {
-    	@SuppressWarnings("unchecked")
-		List<T> edges = (List<T>) verticesMap.values();
+		Collection<List<T>> edges = (Collection<List<T>>) verticesMap.values();
     	return edges.size();
     } // size()
     
@@ -227,6 +225,7 @@ public class GraphImpl<T> implements GraphADT<T> {
     } // printGraph()
     
     public static void main(String[] args) throws FileNotFoundException {
+    	/*
     	GraphImpl<Entity> testGraph = new GraphImpl<Entity>();
     	
     	Entity testCourse = new Entity();
@@ -260,6 +259,11 @@ public class GraphImpl<T> implements GraphADT<T> {
     	System.out.println();
     	System.out.println("The graph visualizing method: ");
     	testGraph.printGraph();
+    	*/
+    	
+    	
+    	
+    	
     	
 	} // Main()
     
