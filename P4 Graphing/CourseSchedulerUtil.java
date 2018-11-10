@@ -130,15 +130,14 @@ public class CourseSchedulerUtil<T> {
     
     /**
      * To check whether all given courses can be completed or not
-     * @return boolean true if all given courses can be completed,
-     * otherwise false
+     * @return boolean true if all given courses can be completed, otherwise false
      * @throws Exception
      */
     public boolean canCoursesBeCompleted() throws Exception {
         //TODO: implement this method
         return false;
 
-    } // canCoursesBeCompleted()
+    }
     
     
     /**
@@ -167,6 +166,7 @@ public class CourseSchedulerUtil<T> {
     
     public static void main(String[] args) throws FileNotFoundException {
     	CourseSchedulerUtil util = new CourseSchedulerUtil();
+
     	try {
 			util.createEntity("valid.JSON");
 			

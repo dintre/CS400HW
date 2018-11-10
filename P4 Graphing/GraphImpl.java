@@ -1,10 +1,17 @@
+import static org.junit.Assert.assertEquals;
+
 import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.print.attribute.standard.PrinterLocation;
+
+import java.util.Iterator;
 
 
 /**
@@ -39,7 +46,7 @@ public class GraphImpl<T> implements GraphADT<T> {
      */ 
     public GraphImpl() {
         verticesMap = new HashMap<T, List<T>>();
-        // you may initialize additional data members here
+        // you may initialize additional data members here // TODO - do I need to?
     } // constructor
 
     /**
@@ -74,9 +81,11 @@ public class GraphImpl<T> implements GraphADT<T> {
     	// current.getPrerequisites();
     	ArrayList<T> preList = new ArrayList<T>();
 		T [] entityArray = (T []) ((Entity) vertex).getPrerequisites();
-		for (int i = 0; i < entityArray.length; i++) {
-    		preList.add(entityArray[i]);
-    	} // for
+		if(entityArray != null) {
+			for (int i = 0; i < entityArray.length; i++) {
+	    		preList.add(entityArray[i]);
+	    	} // for
+		}
     	
     	verticesMap.put(vertex, preList);
     	
@@ -111,8 +120,6 @@ public class GraphImpl<T> implements GraphADT<T> {
     	// Valid vertex argument
     	else {
     		verticesMap.remove(vertex);
-    		
-    		
     	} // else vertex is in graph
 
     } // removeVertex()
@@ -134,7 +141,46 @@ public class GraphImpl<T> implements GraphADT<T> {
      * @param vertex2 the second vertex (dst)
      */
     public void addEdge(T vertex1, T vertex2) {
-        //TODO: implement this method
+    	// exit if either vertex is null
+        if(vertex1 == null || vertex2 == null) {
+        	return;
+        }
+    	
+        // get array of prereqs from this entity
+        Entity course1 = (Entity) vertex1;
+        Entity course2 = (Entity) vertex2;
+        String [] prereqs = (String[]) course1.getPrerequisites();
+        String name = (String) course2.getName();
+        
+        // search for this edge
+        // if it exists, leave method
+    	for(int i = 0; i < prereqs.length; i++) {
+    		if(prereqs[i] == name) {
+    			return;
+    		}
+    	}
+    	// otherwise it's a new, legitimate edge to add
+    	int newLength = prereqs.length + 1;
+    	String [] newPrereqs = new String [newLength];
+    	// place values of old array into the new array
+    	for(int i = 0; i < prereqs.length; i++) {
+    		newPrereqs[i] = prereqs [i];
+    	}
+    	// add new edge
+    	newPrereqs[newLength - 1] = name;
+    	course1.setPrerequisites(newPrereqs);
+    	
+    	((Entity) vertex1).setPrerequisites(newPrereqs);
+    	verticesMap.remove(vertex1);
+    	ArrayList<T> preList = new ArrayList<T>();
+		T [] entityArray = (T []) course1.getPrerequisites();
+		if(entityArray != null) {
+			for (int i = 0; i < entityArray.length; i++) {
+	    		preList.add(entityArray[i]);
+	    	} // for
+		}
+    	verticesMap.put((T) course1, preList);
+    	
     } // addEdge()
     
     /**
@@ -153,7 +199,50 @@ public class GraphImpl<T> implements GraphADT<T> {
      * @param vertex2 the second vertex
      */
     public void removeEdge(T vertex1, T vertex2) {
-        //TODO: implement this method
+    	// exit if either vertex is null
+        if(vertex1 == null || vertex2 == null) {
+        	return;
+        }
+    	
+        // get array of prereqs from this entity
+        Entity course1 = (Entity) vertex1;
+        Entity course2 = (Entity) vertex2;
+        String [] prereqs = (String[]) course1.getPrerequisites();
+        String name = (String) course2.getName();
+
+        // search for this edge
+        // if it exists, remove it
+        // otherwise, return
+    	for(int i = 0; i < prereqs.length; i++) {
+    		if(prereqs[i] == name) {
+    			prereqs[i] = null;
+    			
+    			// fix array
+    			int newLength = prereqs.length - 1;
+    	    	String [] newPrereqs = new String [newLength];
+    			int k = 0;
+    			for(int j = 0; j < prereqs.length; j++) {
+    				if(prereqs[j] != null) {
+    					newPrereqs[k] = prereqs[j];
+    					k++;
+    				}
+    			}   			
+    			course1.setPrerequisites(newPrereqs);
+    			((Entity) vertex1).setPrerequisites(newPrereqs);   			
+    			verticesMap.remove(vertex1);
+    	    	ArrayList<T> preList = new ArrayList<T>();
+    			T [] entityArray = (T []) course1.getPrerequisites();
+    			if(entityArray != null) {
+    				for (int a = 0; a < entityArray.length; a++) {
+    		    		preList.add(entityArray[a]);
+    		    	} // for
+    			}
+    	    	verticesMap.put((T) course1, preList);
+    			
+    			return;
+    		}
+    	} // for looking for course name
+    	
     } // removeEdge()
     
     /**
@@ -173,8 +262,8 @@ public class GraphImpl<T> implements GraphADT<T> {
      */
     @SuppressWarnings("unchecked")
 	public List<T> getAdjacentVerticesOf(T vertex) {
-		List<T> edges = (List<T>) verticesMap.values();
-        return edges;
+    	List<T> value = verticesMap.get(vertex);
+    	return value;
     } // getAdjacentVerticesOf()
     
     /*
@@ -200,10 +289,15 @@ public class GraphImpl<T> implements GraphADT<T> {
      * @return number of edges in the graph.
      */
     public int size() {
-		Collection<List<T>> edges = (Collection<List<T>>) verticesMap.values();
-    	return edges.size();
+    	int count = 0;
+    	Collection<List<T>> list = verticesMap.values();
+    	Object[] array = list.toArray();
+    	for(int i = 0; i < array.length; i++) {
+    		List<T> prereqs = (List<T>) array[i];
+    		count = count + prereqs.size();
+    	}
+    	return count;
     } // size()
-    
     
     /**
      * Prints the graph for the reference
@@ -227,13 +321,11 @@ public class GraphImpl<T> implements GraphADT<T> {
     public static void main(String[] args) throws FileNotFoundException {
     	/*
     	GraphImpl<Entity> testGraph = new GraphImpl<Entity>();
-    	
     	Entity testCourse = new Entity();
     	testCourse.setName("TJD 300");
     	String [] prereqs = new String [] {"TJD 100", "TJD 202"};
     	testCourse.setPrerequisites(prereqs);
     	testGraph.addVertex(testCourse);
-    	
     	
     	Entity testCourse2 = new Entity();
     	testCourse2.setName("TJD 450");
@@ -241,27 +333,18 @@ public class GraphImpl<T> implements GraphADT<T> {
     	testCourse2.setPrerequisites(prereqs2);
     	testGraph.addVertex(testCourse2);
     	
-    	
     	Entity testCourse3 = new Entity();
     	testCourse3.setName("TJD 107");
-    	String [] prereqs3 = new String [] {};
+    	String [] prereqs3 = null;
     	testCourse3.setPrerequisites(prereqs3);
     	testGraph.addVertex(testCourse3);
-    	System.out.println(testGraph.order());
     	
-    	testGraph.removeVertex(testCourse2);
+		System.out.println(testGraph.size());
+		testGraph.addEdge(testCourse,testCourse3);
+		System.out.println();
+		System.out.println(testGraph.size());
     	
-    	System.out.println("Get all vertices" + testGraph.getAllVertices());
-    	System.out.println("Get all values " + testGraph.size());
-    	
-    	
-    	// ----------------------------------------------------------------
-    	System.out.println();
-    	System.out.println("The graph visualizing method: ");
-    	testGraph.printGraph();
     	*/
-    	
-    	
     	
     	
     	
