@@ -32,8 +32,50 @@ import java.util.Iterator;
  */
 public class GraphImpl<T> implements GraphADT<T> {
 
-    // YOU MAY ADD ADDITIONAL private members
+    // YOU MAY ADD ADDITIONAL private members // TODO - remove
     // YOU MAY NOT ADD ADDITIONAL public members
+	
+	/*
+	 * inner node class that represents a vertex/node
+	 * within the graph
+	 */
+	class GraphNode<T> { 
+        private T data; // information about the node
+        private boolean visited; // when traversing, whether or not this
+        // node has been "visited"
+        
+        /*
+         * constructor to create a node within the graph
+         */
+        private GraphNode (T value) {
+        	data = value;
+        	visited = false;
+        } // constructor
+        
+        /*
+         * @param newData the data to be set
+         * sets the data in the node
+         */
+        private void setNodeData(T newData) {
+        	this.data = newData;
+        } // setNodedata()
+        
+        /*
+         * @return the data in the node
+         */
+        private T getNodeData() {
+        	return data;
+        } // getNodeData()
+        
+        /*
+         * sets the node to have been visited
+         */
+        private void setVisited() {
+        	visited = true;
+        } //setVisited()
+        
+    } // inner GraphNode class
+
 
     /**
      * Store the vertices and the vertice's adjacent vertices
@@ -76,17 +118,9 @@ public class GraphImpl<T> implements GraphADT<T> {
     	}
     	
     	// convert an array of prereqs to a list to be added/put
-    	// Entity current = new Entity();
-    	// current.getPrerequisites();
-    	ArrayList<T> preList = new ArrayList<T>();
-		T [] entityArray = (T []) ((Entity) vertex).getPrerequisites();
-		if(entityArray != null) {
-			for (int i = 0; i < entityArray.length; i++) {
-	    		preList.add(entityArray[i]);
-	    	} // for
-		}
-    	
-    	verticesMap.put(vertex, preList);
+    	ArrayList<T> prereqList = new ArrayList<T>();
+    	GraphNode<T> newNode = new GraphNode<T>(vertex);
+    	verticesMap.put(newNode.getNodeData(), prereqList);
     	
     } // addVertex()
     
@@ -144,40 +178,19 @@ public class GraphImpl<T> implements GraphADT<T> {
         	return;
         }
     	
-        // get array of prereqs from this entity
-        Entity course1 = (Entity) vertex1;
-        Entity course2 = (Entity) vertex2;
-        String [] prereqs = (String[]) course1.getPrerequisites();
-        String name = (String) course2.getName();
+        // get the key-value pair for vertex
+        List<T> prereqList = verticesMap.remove(vertex1);
         
-        // search for this edge
-        // if it exists, leave method
-    	for(int i = 0; i < prereqs.length; i++) {
-    		if(prereqs[i] == name) {
-    			return;
-    		}
-    	}
-    	// otherwise it's a new, legitimate edge to add
-    	int newLength = prereqs.length + 1;
-    	String [] newPrereqs = new String [newLength];
-    	// place values of old array into the new array
-    	for(int i = 0; i < prereqs.length; i++) {
-    		newPrereqs[i] = prereqs [i];
-    	}
-    	// add new edge
-    	newPrereqs[newLength - 1] = name;
-    	course1.setPrerequisites(newPrereqs);
-    	
-    	((Entity) vertex1).setPrerequisites(newPrereqs);
-    	verticesMap.remove(vertex1);
-    	ArrayList<T> preList = new ArrayList<T>();
-		T [] entityArray = (T []) course1.getPrerequisites();
-		if(entityArray != null) {
-			for (int i = 0; i < entityArray.length; i++) {
-	    		preList.add(entityArray[i]);
-	    	} // for
-		}
-    	verticesMap.put((T) course1, preList);
+        // if the edge already exists
+        if(prereqList.contains(vertex2)) {
+        	verticesMap.put(vertex1, prereqList);
+        	return;
+        }
+        else {
+            // it's a new edge to add
+            prereqList.add(vertex2);
+        	verticesMap.put(vertex1, prereqList);
+        }
     	
     } // addEdge()
     
@@ -201,46 +214,26 @@ public class GraphImpl<T> implements GraphADT<T> {
         if(vertex1 == null || vertex2 == null) {
         	return;
         }
-    	
-        // get array of prereqs from this entity
-        Entity course1 = (Entity) vertex1;
-        Entity course2 = (Entity) vertex2;
-        String [] prereqs = (String[]) course1.getPrerequisites();
-        String name = (String) course2.getName();
-
-        // search for this edge
-        // if it exists, remove it
-        // otherwise, return
-    	for(int i = 0; i < prereqs.length; i++) {
-    		if(prereqs[i] == name) {
-    			prereqs[i] = null;
-    			
-    			// fix array
-    			int newLength = prereqs.length - 1;
-    	    	String [] newPrereqs = new String [newLength];
-    			int k = 0;
-    			for(int j = 0; j < prereqs.length; j++) {
-    				if(prereqs[j] != null) {
-    					newPrereqs[k] = prereqs[j];
-    					k++;
-    				}
-    			}   			
-    			course1.setPrerequisites(newPrereqs);
-    			((Entity) vertex1).setPrerequisites(newPrereqs);   			
-    			verticesMap.remove(vertex1);
-    	    	ArrayList<T> preList = new ArrayList<T>();
-    			T [] entityArray = (T []) course1.getPrerequisites();
-    			if(entityArray != null) {
-    				for (int a = 0; a < entityArray.length; a++) {
-    		    		preList.add(entityArray[a]);
-    		    	} // for
-    			}
-    	    	verticesMap.put((T) course1, preList);
-    			
-    			return;
-    		}
-    	} // for looking for course name
-    	
+    	// if either vertex doesn't exist in the graph
+        if(!verticesMap.containsKey(vertex1) || !verticesMap.containsKey(vertex2)) {
+        	return;
+        }
+        
+        // otherwise vertices are valid
+        // search for edge
+        // get the key-value pair for vertex
+        List<T> prereqList = verticesMap.remove(vertex1);
+        // if the edge doesn't exist, quit
+        if(!prereqList.contains(vertex2)) {
+        	verticesMap.put(vertex1, prereqList);
+        	return;
+        }
+        // otherwise the edge exists. It's time to remove it
+        else {
+        	prereqList.remove(vertex2);
+        	verticesMap.put(vertex1, prereqList);
+        }
+	
     } // removeEdge()
     
     /**
@@ -293,6 +286,8 @@ public class GraphImpl<T> implements GraphADT<T> {
     	for(int i = 0; i < array.length; i++) {
     		List<T> prereqs = (List<T>) array[i];
     		count = count + prereqs.size();
+//    		System.out.println("Prereqs are " + prereqs);
+//    		System.out.println("Count is " + count);
     	}
     	return count;
     } // size()
@@ -317,24 +312,7 @@ public class GraphImpl<T> implements GraphADT<T> {
     } // printGraph()
     
     public static void main(String[] args) throws FileNotFoundException {
-		GraphImpl<Entity> testGraph = new GraphImpl<Entity>();
-    	Entity testCourse = new Entity();
-    	testCourse.setName("TJD 300");
-    	String [] prereqs = new String [] {"TJD 100", "TJD 107", "TJD 202"};
-    	testCourse.setPrerequisites(prereqs);
-    	testGraph.addVertex(testCourse);
-    	
-    	Entity testCourse2 = new Entity();
-    	testCourse2.setName("TJD 450");
-    	String [] prereqs2 = new String [] {"TJD 233"};
-    	testCourse2.setPrerequisites(prereqs2);
-    	testGraph.addVertex(testCourse2);
-    	
-    	Entity testCourse3 = new Entity();
-    	testCourse3.setName("TJD 107");
-    	String [] prereqs3 = null;
-    	testCourse3.setPrerequisites(prereqs3);
-    	testGraph.addVertex(testCourse3);
+
 
     	
     	

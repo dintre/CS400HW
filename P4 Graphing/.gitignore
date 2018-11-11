@@ -4,3 +4,5 @@
 /TestGraph.class
 /GraphADT.class
 /GraphImpl.class
+/GraphImpl$GraphNode.class
+/JUNITGraphImplementation.class

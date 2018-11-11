@@ -81,17 +81,15 @@ public class CourseSchedulerUtil<T> {
 				
 				while(prereqIterator.hasNext()) {
 					String prereqValue = (String) prereqIterator.next();
-					// Entity newCourse = new Entity(); // create the entity object
-					// newCourse.setName(prereqValue); // TODO - do I need this object?
 					prerequisites[prereqIndex] = prereqValue;
 					prereqIndex++; // increment index
 				} // inner while
 
 				String nameValue = (String) courseObj.get("name");
-				Entity newerCourse = new Entity();
-				newerCourse.setName(nameValue);
-				newerCourse.setPrerequisites(prerequisites);
-		        entities[courseIndex] = newerCourse;
+				Entity newCourse = new Entity();
+				newCourse.setName(nameValue);
+				newCourse.setPrerequisites(prerequisites);
+		        entities[courseIndex] = newCourse;
 		        courseIndex++; // increment index since done parsing this course
 			} // while
 			
@@ -108,7 +106,6 @@ public class CourseSchedulerUtil<T> {
 	
 	} // createEntity()
     
-    
     /**
      * Construct a directed graph from the created entity object 
      * @param entities which has information about a single course 
@@ -118,8 +115,12 @@ public class CourseSchedulerUtil<T> {
     public void constructGraph(Entity[] entities) {
     	GraphImpl graph = new GraphImpl();
     	for(int i = 0; i < entities.length; i++) {
-        	graph.addVertex(entities[i]);
-    	}    	
+        	graph.addVertex(entities[i].getName());
+        	Object[] array = entities[i].getPrerequisites();
+        	for(int j = 0; j < array.length; j++) {
+        		graph.addEdge(entities[i].getName(), array[j]);
+        	}
+    	}	
     	
     } // constructGraph()
     
@@ -129,9 +130,15 @@ public class CourseSchedulerUtil<T> {
      * @return the set of all available courses
      */
     public Set<T> getAllCourses() {
+    	
     	Set<T> courseSet = graphImpl.getAllVertices();
-    	Spliterator splt = courseSet.spliterator();
-    	splt.forEachRemaining((n) -> System.out.println(n));
+    	
+    	Iterator itr = courseSet.iterator();
+    	
+    	while(itr.hasNext()) {
+    		Object course = itr.next();
+    		    		
+    	}
     	
         //TODO: implement this method
         return null;
@@ -156,6 +163,17 @@ public class CourseSchedulerUtil<T> {
      * @throws Exception when courses can't be completed in any order
      */
     public List<T> getSubjectOrder() throws Exception {
+    	// TODO - implement one of the graphing methods - topological ordering
+    	int N = graphImpl.order();
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+    	
         //TODO: implement this method
         return null;
 
@@ -186,8 +204,15 @@ public class CourseSchedulerUtil<T> {
 			// calling code directly so I can print it
 	    	GraphImpl graph = new GraphImpl();
 	    	for(int i = 0; i < entities.length; i++) {
-	        	graph.addVertex(entities[i]);
+	        	graph.addVertex(entities[i].getName());
+	        	Object[] array = entities[i].getPrerequisites();
+	        	for(int j = 0; j < array.length; j++) {
+	        		graph.addEdge(entities[i].getName(), array[j]);
+	        	}
+	        	
 	    	}
+	   	    	
+	    	
 	    	graph.printGraph();
 			
 			
