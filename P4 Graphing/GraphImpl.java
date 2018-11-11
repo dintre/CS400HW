@@ -69,7 +69,6 @@ public class GraphImpl<T> implements GraphADT<T> {
     	}
     	
     	// add vertex and its prereqs to the hashmap
-    	// verticesMap.put(vertex, value) // TODO - add prereqs too
     	// check whether or not vertex already exists in map
     	if(verticesMap.containsKey(vertex)) {
     		System.out.println("Duplicate vertex");
@@ -106,7 +105,6 @@ public class GraphImpl<T> implements GraphADT<T> {
     * @param vertex the vertex to be removed
     */
     public void removeVertex(T vertex) {
-        //TODO: implement this method
     	// if vertex argument is null
     	if(vertex == null) {
     		System.out.println("Vertex was null. Not adding. ");
@@ -319,11 +317,10 @@ public class GraphImpl<T> implements GraphADT<T> {
     } // printGraph()
     
     public static void main(String[] args) throws FileNotFoundException {
-    	/*
-    	GraphImpl<Entity> testGraph = new GraphImpl<Entity>();
+		GraphImpl<Entity> testGraph = new GraphImpl<Entity>();
     	Entity testCourse = new Entity();
     	testCourse.setName("TJD 300");
-    	String [] prereqs = new String [] {"TJD 100", "TJD 202"};
+    	String [] prereqs = new String [] {"TJD 100", "TJD 107", "TJD 202"};
     	testCourse.setPrerequisites(prereqs);
     	testGraph.addVertex(testCourse);
     	
@@ -338,13 +335,7 @@ public class GraphImpl<T> implements GraphADT<T> {
     	String [] prereqs3 = null;
     	testCourse3.setPrerequisites(prereqs3);
     	testGraph.addVertex(testCourse3);
-    	
-		System.out.println(testGraph.size());
-		testGraph.addEdge(testCourse,testCourse3);
-		System.out.println();
-		System.out.println(testGraph.size());
-    	
-    	*/
+
     	
     	
     	

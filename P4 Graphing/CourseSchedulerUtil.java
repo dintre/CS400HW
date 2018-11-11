@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Spliterator;
 import java.util.Stack;
 
 import org.json.simple.JSONArray;
@@ -65,7 +66,8 @@ public class CourseSchedulerUtil<T> {
 	        Iterator itr = courses.iterator();
 	        
 	        Entity [] entities = new Entity[courses.size()]; // array to be returned
-	
+	        
+			int courseIndex = 0;
 	        // iterates through courses array
 	        // each time it's a different course
 			while(itr.hasNext()) {
@@ -74,8 +76,9 @@ public class CourseSchedulerUtil<T> {
 				JSONArray set = (JSONArray) courseObj.get("prerequisites");
 				Iterator prereqIterator = set.iterator();
 				String [] prerequisites = new String [set.size()]; // array to store prereqs
-				int courseIndex = 0;
+				
 				int prereqIndex = 0; // index for setting prereq array values
+				
 				while(prereqIterator.hasNext()) {
 					String prereqValue = (String) prereqIterator.next();
 					// Entity newCourse = new Entity(); // create the entity object
@@ -91,7 +94,7 @@ public class CourseSchedulerUtil<T> {
 		        entities[courseIndex] = newerCourse;
 		        courseIndex++; // increment index since done parsing this course
 			} // while
-
+			
 			return entities; // array of new entities (courses) being returned
 	
 		} // try
@@ -113,16 +116,23 @@ public class CourseSchedulerUtil<T> {
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void constructGraph(Entity[] entities) {
-        //TODO: implement this method
-
+    	GraphImpl graph = new GraphImpl();
+    	for(int i = 0; i < entities.length; i++) {
+        	graph.addVertex(entities[i]);
+    	}    	
+    	
     } // constructGraph()
     
     
     /**
      * Returns all the unique available courses
-     * @return the sorted list set of all available courses
+     * @return the set of all available courses
      */
     public Set<T> getAllCourses() {
+    	Set<T> courseSet = graphImpl.getAllVertices();
+    	Spliterator splt = courseSet.spliterator();
+    	splt.forEachRemaining((n) -> System.out.println(n));
+    	
         //TODO: implement this method
         return null;
     } // getAllCourses()
@@ -167,8 +177,19 @@ public class CourseSchedulerUtil<T> {
     public static void main(String[] args) throws FileNotFoundException {
     	CourseSchedulerUtil util = new CourseSchedulerUtil();
 
+
     	try {
-			util.createEntity("valid.JSON");
+			Entity [] entities = util.createEntity("valid.JSON");
+			util.constructGraph(entities);
+			
+			
+			// calling code directly so I can print it
+	    	GraphImpl graph = new GraphImpl();
+	    	for(int i = 0; i < entities.length; i++) {
+	        	graph.addVertex(entities[i]);
+	    	}
+	    	graph.printGraph();
+			
 			
 			
 		} 
