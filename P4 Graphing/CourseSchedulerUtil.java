@@ -113,12 +113,12 @@ public class CourseSchedulerUtil<T> {
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void constructGraph(Entity[] entities) {
-    	GraphImpl graph = new GraphImpl();
+    	graphImpl = new GraphImpl();
     	for(int i = 0; i < entities.length; i++) {
-        	graph.addVertex(entities[i].getName());
+        	graphImpl.addVertex((T) entities[i].getName());
         	Object[] array = entities[i].getPrerequisites();
         	for(int j = 0; j < array.length; j++) {
-        		graph.addEdge(entities[i].getName(), array[j]);
+        		graphImpl.addEdge((T) entities[i].getName(), (T) array[j]);
         	}
     	}	
     	
@@ -126,22 +126,36 @@ public class CourseSchedulerUtil<T> {
     
     
     /**
-     * Returns all the unique available courses
+     * Returns all the unique available courses, including non-JSON object ones
      * @return the set of all available courses
      */
     public Set<T> getAllCourses() {
-    	
     	Set<T> courseSet = graphImpl.getAllVertices();
-    	
     	Iterator itr = courseSet.iterator();
-    	
+    	ArrayList<T> array = new ArrayList<T>();
+
     	while(itr.hasNext()) {
-    		Object course = itr.next();
-    		    		
+    		T course = (T) itr.next();
+    		array.add(course);
+    		List<T> prereqList = graphImpl.getAdjacentVerticesOf(course);
+    		for(int i = 0; i < prereqList.size(); i++) {
+    			T prereq = prereqList.get(i);
+
+    			if(!array.contains(prereq)) {
+        			System.out.println("Prereq is " + prereq);
+        			array.add(prereq);
+    			}
+    		}	
+    	} // while
+		
+    	HashSet<T> returnSet = new HashSet<T>();
+    	for(int i = 0; i < array.size(); i++) {
+    		System.out.println(array.get(i));
+    		T value = array.get(i);
+    		returnSet.add(value);	
     	}
     	
-        //TODO: implement this method
-        return null;
+        return returnSet;
     } // getAllCourses()
     
     
@@ -193,14 +207,17 @@ public class CourseSchedulerUtil<T> {
     
     
     public static void main(String[] args) throws FileNotFoundException {
-    	CourseSchedulerUtil util = new CourseSchedulerUtil();
+    	CourseSchedulerUtil<String> util = new CourseSchedulerUtil<String>();
 
 
     	try {
-			Entity [] entities = util.createEntity("valid.JSON");
+			Entity [] entities = util.createEntity("Valid.json");
 			util.constructGraph(entities);
-			
-			
+	    	Set<String> courseList = util.getAllCourses();
+			System.out.println(courseList);
+	    	
+	    	System.out.println();
+	    	System.out.println("Graph directly called.");
 			// calling code directly so I can print it
 	    	GraphImpl graph = new GraphImpl();
 	    	for(int i = 0; i < entities.length; i++) {
@@ -215,6 +232,7 @@ public class CourseSchedulerUtil<T> {
 	    	
 	    	graph.printGraph();
 			
+
 			
 			
 		} 
