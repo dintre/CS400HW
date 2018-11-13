@@ -237,18 +237,34 @@ public class CourseSchedulerUtil<T> {
      * @throws Exception when courses can't be completed in any order
      */
     public List<T> getSubjectOrder() throws Exception {
-    	// TODO - handle prereqs as well
-    	
+//    	Let N be the number of vertices.  Mark all vertices as unvisited. 
+//    	Make a stack.   Make an array of length N.  
+//
+//    	for each vertex V with no predecessors // alphanumeric order on quizzes
+//    		mark V as visited
+//    	push V onto the stack
+//
+//    	decrement N so that N is now the index of the last element of the array.
+//    	while Stack is not empty
+//    		current = stack.peek();
+//    		if all successors of current are visited
+//    			pop current off the stack…..store it in the array at index N
+//    			decrement N
+//    		else
+//    			select an unvisited successor U of current  // alphanumeric order on quizzes
+//    			mark U as visited
+//    			push U onto the stack
     	
     	// TODO - implement one of the graphing methods - topological ordering
-    	int n = graphImpl.order(); // get the number of vertices in the graph
-
+    	// TODO - mark all nodes as unvisited
+    	
     	int n = getAllCourses().size(); // get all courses
     	Set<T> courses = getAllCourses();
-    	// int n = graphImpl.order(); // number of vertices in the graph
     	CourseStack stack = new CourseStack(n); // create a stack    
+    	ArrayList<T> array = new ArrayList<T>(); // arraylist to store order
     	
-    	
+    	Iterator courseListItr = courses.iterator();
+    	graphImpl.getAdjacentVerticesOf(vertex)
     	
     	
     	
@@ -315,6 +331,15 @@ public class CourseSchedulerUtil<T> {
 			System.out.println("Testing minimum number of courses to complete CS790.");
 			System.out.println(util.getMinimalCourseCompletion("CS790"));
 	    	
+	    	System.out.println();
+	    	System.out.println("Getting subject order ");
+			util.getSubjectOrder();
+			
+			
+			
+			
+			
+	    	System.out.println();
 	    	System.out.println();
 	    	System.out.println("Graph directly called.");
 			// calling code directly so I can print it
