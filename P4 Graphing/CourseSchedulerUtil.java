@@ -31,6 +31,68 @@ import org.json.simple.parser.JSONParser;
 public class CourseSchedulerUtil<T> {
     
     // can add private but not public members
+	/*
+	 * inner stack class
+	 */
+	private class CourseStack<T> {
+		// fields
+		private int size;
+		private Entity[] position;
+		
+		/*
+		 * constructor
+		 */
+		private CourseStack(int n) {
+			position = new Entity[n];
+		} // constructor
+		
+		private boolean isEmpty() {
+			if(size == 0) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		} // isEmpty()
+		
+		private void push(Entity newNode) {
+			if(isEmpty()) {
+				position[0] = newNode;
+			}
+			else {
+				// place item on top of stack (index 0)
+				// shift other positions on the stack
+				for (int index = size; index > 0; index--){
+					// index starts at the first open position on the stack
+					// shift the bottom item 1 further
+				position[index] = position[index - 1];
+				} // for
+				// done making room for the top item on the stack
+				// place item on the top of the stack
+				position[0] = newNode;
+				// increment size
+				size++;	
+			}
+		} // push()
+		
+		private Entity pop() {
+			Entity node = position[0];
+			// shift rest of stack into array index at 0
+			// through whatever index is necessary
+			for(int i = 0; i < size; i++) {
+				// set position at index to position at index + 1
+				position[i] = position[i + 1];
+			} // for
+			// done shifting
+			// clear the former lowest position on the stack
+			position[size - 1] = null;	
+			// decrement size
+			size--;
+			return node;
+		} // pop()
+		
+	}// inner CourseStack class
+	
     
     /**
      * Graph object
@@ -142,7 +204,6 @@ public class CourseSchedulerUtil<T> {
     			T prereq = prereqList.get(i);
 
     			if(!array.contains(prereq)) {
-        			System.out.println("Prereq is " + prereq);
         			array.add(prereq);
     			}
     		}	
@@ -150,7 +211,6 @@ public class CourseSchedulerUtil<T> {
 		
     	HashSet<T> returnSet = new HashSet<T>();
     	for(int i = 0; i < array.size(); i++) {
-    		System.out.println(array.get(i));
     		T value = array.get(i);
     		returnSet.add(value);	
     	}
@@ -177,10 +237,16 @@ public class CourseSchedulerUtil<T> {
      * @throws Exception when courses can't be completed in any order
      */
     public List<T> getSubjectOrder() throws Exception {
+    	// TODO - handle prereqs as well
+    	
+    	
     	// TODO - implement one of the graphing methods - topological ordering
-    	int N = graphImpl.order();
-    	
-    	
+    	int n = graphImpl.order(); // get the number of vertices in the graph
+
+    	int n = getAllCourses().size(); // get all courses
+    	Set<T> courses = getAllCourses();
+    	// int n = graphImpl.order(); // number of vertices in the graph
+    	CourseStack stack = new CourseStack(n); // create a stack    
     	
     	
     	
@@ -199,11 +265,33 @@ public class CourseSchedulerUtil<T> {
      * @param courseName 
      * @return the number of minimum courses needed for a given course
      */
-    public int getMinimalCourseCompletion(T courseName) throws Exception {
-        //TODO: implement this method
-        return -1;
-        
+    public int getMinimalCourseCompletion(T courseName) throws Exception {    	
+    	int count = 0;
+        count = helpGetMinimum(count, courseName); // call helper method
+        return count;
     } // getMinimalCourseCompletion()
+    
+    
+    private int helpGetMinimum(int count, T courseName) {
+    	// for each vertex with no predecessors
+    	ArrayList<T> prereqs = (ArrayList<T>) graphImpl.getAdjacentVerticesOf(courseName);
+    	if(prereqs == null) {
+    		return 0;
+    	}
+    	Iterator itr = prereqs.iterator();
+    	
+    	for(int i = 0; i < prereqs.size(); i++) {
+    		try {
+    			T next = (T) prereqs.get(i);
+				count = count + helpGetMinimum(count, next); // recursive call
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+    		
+    	}
+    	count = count + prereqs.size();
+    	return count;
+    } // helpGetMinimum()
     
     
     public static void main(String[] args) throws FileNotFoundException {
@@ -215,6 +303,17 @@ public class CourseSchedulerUtil<T> {
 			util.constructGraph(entities);
 	    	Set<String> courseList = util.getAllCourses();
 			System.out.println(courseList);
+			
+			System.out.println("Testing minimum number of courses to complete CS300.");
+			System.out.println(util.getMinimalCourseCompletion("CS300"));
+			System.out.println("Testing minimum number of courses to complete CS400.");
+			System.out.println(util.getMinimalCourseCompletion("CS400"));
+			System.out.println("Testing minimum number of courses to complete CS540.");
+			System.out.println(util.getMinimalCourseCompletion("CS540"));
+			System.out.println("Testing minimum number of courses to complete CS760.");
+			System.out.println(util.getMinimalCourseCompletion("CS760"));
+			System.out.println("Testing minimum number of courses to complete CS790.");
+			System.out.println(util.getMinimalCourseCompletion("CS790"));
 	    	
 	    	System.out.println();
 	    	System.out.println("Graph directly called.");
