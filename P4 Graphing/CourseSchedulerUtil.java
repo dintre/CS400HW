@@ -35,6 +35,10 @@ import org.json.simple.parser.JSONParser;
 public class CourseSchedulerUtil<T> {
     
     // can add private but not public members
+    private CourseStack stack;
+
+	
+	
 	/*
 	 * inner stack class
 	 */
@@ -235,11 +239,80 @@ public class CourseSchedulerUtil<T> {
      * @throws Exception
      */
     public boolean canCoursesBeCompleted() throws Exception {
-        //TODO: implement this method
-        return false;
+       	int n = graphImpl.getAllVertices().size(); // get all courses
+    	//int n = getAllCourses().size();
+    	System.out.println(n);
+    	visited = new ArrayList<T>();
+    	ArrayList<T> track = new ArrayList<T>();
+    	
+    	Set<T> courses = graphImpl.getAllVertices();
+    	Iterator<T> courseListItr = courses.iterator();
+    	// go through vertices
+    	for(int i = 0; i < n; i++) {
+    		System.out.println(i);
+    		T current = courseListItr.next();
+    		System.out.println("Outer current is " + current);
+    		if(helperBeCompleted(current, visited, track) == true) {
+    			track.remove(current);
+    			continue;
+    		}
+    		else {
+    			System.out.println("HERE?");
+    			return false;
+    		}
+    	}
+		System.out.println("ENd of main.");
+    	return true;
+    } // canCoursesBeCompleted()
+    
+    private boolean helperBeCompleted(T current, ArrayList<T> visited, ArrayList<T> track) { // TODO - keep testing this
+    	System.out.println("Starting helper method   ");
+    	System.out.println("Current is " + current);
+    	if(track.contains(current)) {
+    		System.out.println("in the track one ");
+    		return false;
+    	}
+    	
+    	if(visited.contains(current)) {
+    		System.out.println("so...this one?");
+    		return true;
+    	}
+    	
+    	// mark current as visited
+    	visited.add(current);
+    	// add current to the track record
+    	track.add(current);
+    	
+    	// work on prereqs
+    	List<T> adjacentList = graphImpl.getAdjacentVerticesOf(current);
+    	if(adjacentList == null) {
+    		System.out.println("No adjacencies");
+    		return true;
+    	}
+		if(adjacentList != null) {
+			Iterator prereqs = adjacentList.iterator();
+			while(prereqs.hasNext()) {
+				current = (T) prereqs.next();
+				System.out.println("Current in helper while " + current);
+				if(helperBeCompleted(current, visited, track)) {
+					track.remove(current);
+					continue;
+				}
 
-    }
-    private CourseStack stack;
+				else {
+					System.out.println("In this false part");
+					return false;
+				}
+			} // while
+		} // if check
+		
+		System.out.println("ENd of helper.");
+		track.remove(current);
+		return true;
+		//return false;
+    } // helperBeCompleted()
+    
+    
     
     /**
      * The order of courses in which the courses has to be taken
@@ -367,6 +440,18 @@ public class CourseSchedulerUtil<T> {
 	    	System.out.println();
 	    	System.out.println("Getting subject order ");
 			System.out.println(util.getSubjectOrder());			
+			
+	    	System.out.println();
+	    	System.out.println("Checking whether or not you can complete courses ");
+			System.out.println(util.canCoursesBeCompleted());	
+			
+			// ------------- invalid JSON
+			
+			System.out.println();
+			Entity [] entitiestwo = util.createEntity("invalid.json");
+			util.constructGraph(entitiestwo);
+			System.out.println("Can invalid be completed?");
+			System.out.println(util.canCoursesBeCompleted());
 			
 			
 			
