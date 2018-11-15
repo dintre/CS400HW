@@ -26,6 +26,10 @@ import org.json.simple.parser.JSONParser;
  * 
  * Use this class for implementing Course Planner
  * @param <T> represents type
+ * 
+ * 
+ * Credits:
+ *      https://www.geeksforgeeks.org/java-program-for-topological-sorting/
  */
 
 public class CourseSchedulerUtil<T> {
@@ -58,6 +62,7 @@ public class CourseSchedulerUtil<T> {
 		private void push(Entity newNode) {
 			if(isEmpty()) {
 				position[0] = newNode;
+				size++;
 			}
 			else {
 				// place item on top of stack (index 0)
@@ -79,17 +84,22 @@ public class CourseSchedulerUtil<T> {
 			Entity node = position[0];
 			// shift rest of stack into array index at 0
 			// through whatever index is necessary
-			for(int i = 0; i < size; i++) {
+			for(int i = 0; i <= size; i++) {
 				// set position at index to position at index + 1
 				position[i] = position[i + 1];
 			} // for
 			// done shifting
 			// clear the former lowest position on the stack
-			position[size - 1] = null;	
+			position[size] = null;	
 			// decrement size
 			size--;
 			return node;
 		} // pop()
+		
+		private Entity peek() {
+			Entity topEntity = position[0];
+			return topEntity;
+		} // peek()
 		
 	}// inner CourseStack class
 	
@@ -98,7 +108,7 @@ public class CourseSchedulerUtil<T> {
      * Graph object
      */
     private GraphImpl<T> graphImpl;
-    
+    private ArrayList<T> visited;
     
     /**
      * constructor to initialize a graph object
@@ -229,52 +239,75 @@ public class CourseSchedulerUtil<T> {
         return false;
 
     }
-    
+    private CourseStack stack;
     
     /**
      * The order of courses in which the courses has to be taken
      * @return the list of courses in the order it has to be taken
      * @throws Exception when courses can't be completed in any order
      */
-    public List<T> getSubjectOrder() throws Exception {
-//    	Let N be the number of vertices.  Mark all vertices as unvisited. 
-//    	Make a stack.   Make an array of length N.  
-//
-//    	for each vertex V with no predecessors // alphanumeric order on quizzes
-//    		mark V as visited
-//    	push V onto the stack
-//
-//    	decrement N so that N is now the index of the last element of the array.
-//    	while Stack is not empty
-//    		current = stack.peek();
-//    		if all successors of current are visited
-//    			pop current off the stack…..store it in the array at index N
-//    			decrement N
-//    		else
-//    			select an unvisited successor U of current  // alphanumeric order on quizzes
-//    			mark U as visited
-//    			push U onto the stack
+    public List<T> getSubjectOrder() throws Exception {  
+       	int n = getAllCourses().size(); // get all courses
+    	stack = new CourseStack(n); // create a stack
+    	ArrayList<T> orderedArray = new ArrayList<T>();
+    	ArrayList<T> sorted = new ArrayList<T>(7);
     	
-    	// TODO - implement one of the graphing methods - topological ordering
-    	// TODO - mark all nodes as unvisited
-    	
-    	int n = getAllCourses().size(); // get all courses
     	Set<T> courses = getAllCourses();
-    	CourseStack stack = new CourseStack(n); // create a stack    
-    	ArrayList<T> array = new ArrayList<T>(); // arraylist to store order
-    	
     	Iterator courseListItr = courses.iterator();
-    	graphImpl.getAdjacentVerticesOf(vertex)
-    	
-    	
-    	
-    	
-    	
-        //TODO: implement this method
-        return null;
+    	visited = new ArrayList<T>();
+    	for(int j = 0; j < courses.size(); j++) {
 
-    } // getSubjectOrder()
+        	T current = (T) courseListItr.next();
+        	Entity cur = new Entity();
+        	cur.setName(current);
+        	System.out.println("Outer current " + current);
+        	if(!visited.contains(current)) {
+        		System.out.println("Visited array doesn't contain current.");
+        		//stack.push(cur);
+        		fixRecurse(n, sorted, stack, current);
+        		// TODO - stack isn't transferring back. We're losing CS 300
+        	}
 
+    	} // for
+
+    	System.out.println("Visited array.");
+    	System.out.println(visited);
+
+    	return sorted;
+    } // testSubjectOrder()
+    
+    private void fixRecurse(int n, ArrayList<T> sorted, CourseStack stack, T current) {
+    	Entity newcur = new Entity();
+		newcur.setName(current);
+    	stack.push(newcur);
+    	//System.out.println("Pushing " + newcur + " - " + current + " onto stack.");
+		visited.add(current);
+    	while(!stack.isEmpty()) {
+    		List<T> adjacentList = graphImpl.getAdjacentVerticesOf(current);
+    		if(adjacentList != null) {
+    			Iterator prereqs = adjacentList.iterator();
+    			while(prereqs.hasNext()) {
+    				Entity cur = new Entity();
+    				T check = (T) prereqs.next();
+    				System.out.println(check);
+    				cur.setName(check);
+    				if(!visited.contains(check)) {
+    					//System.out.println("(recursive) Visited does not contain " + check);
+        				fixRecurse(n, sorted, stack, check);
+    				}
+
+
+    			}
+    		} // if check
+    		if(stack.isEmpty()) {
+    			break;
+    		}
+
+    		sorted.add((T) stack.pop().getName()); // TODO - just add to sorted; don't print
+    		
+    	} // while stack isn't empty
+ 	
+    } // fixRecurse()
         
     /**
      * The minimum course required to be taken for a given course
@@ -333,9 +366,7 @@ public class CourseSchedulerUtil<T> {
 	    	
 	    	System.out.println();
 	    	System.out.println("Getting subject order ");
-			util.getSubjectOrder();
-			
-			
+			System.out.println(util.getSubjectOrder());			
 			
 			
 			
