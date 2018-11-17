@@ -25,6 +25,7 @@ import java.util.Iterator;
  * adjacent vertices for that vertex.
  *
  * Additional credits: 
+ * 		Java docs on List, Set, and HashMap
  *
  * Bugs or other notes: 
  *
@@ -88,7 +89,6 @@ public class GraphImpl<T> implements GraphADT<T> {
      */ 
     public GraphImpl() {
         verticesMap = new HashMap<T, List<T>>();
-        // you may initialize additional data members here // TODO - do I need to?
     } // constructor
 
     /**
@@ -120,7 +120,7 @@ public class GraphImpl<T> implements GraphADT<T> {
     	// convert an array of prereqs to a list to be added/put
     	ArrayList<T> prereqList = new ArrayList<T>();
     	GraphNode<T> newNode = new GraphNode<T>(vertex);
-    	verticesMap.put(newNode.getNodeData(), prereqList);
+    	verticesMap.put(vertex, prereqList);
     	
     } // addVertex()
     
