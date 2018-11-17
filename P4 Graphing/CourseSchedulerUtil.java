@@ -26,34 +26,38 @@ import org.json.simple.parser.JSONParser;
  * 
  * Use this class for implementing Course Planner
  * @param <T> represents type
+ * Creates a utility that can be used to test an implementation of a graph
  * 
  * 
  * Credits:
  *      https://www.geeksforgeeks.org/java-program-for-topological-sorting/
+ *      https://www.geeksforgeeks.org/detect-cycle-in-a-graph/
  */
-
 public class CourseSchedulerUtil<T> {
     
     // can add private but not public members
-    private CourseStack stack;
+    private CourseStack stack; // stack to keep track of traversals
 
-	
-	
 	/*
 	 * inner stack class
+	 * a basic array stack used to track traversals of vertices
 	 */
 	private class CourseStack<T> {
 		// fields
-		private int size;
-		private Entity[] position;
+		private int size; // current size of the stack
+		private Entity[] position; // storage of the stack
 		
 		/*
 		 * constructor
+		 * Sets size of the array to the user input
 		 */
 		private CourseStack(int n) {
 			position = new Entity[n];
 		} // constructor
 		
+		/*
+		 * @return true if stack is empty
+		 */
 		private boolean isEmpty() {
 			if(size == 0) {
 				return true;
@@ -63,6 +67,10 @@ public class CourseSchedulerUtil<T> {
 			}
 		} // isEmpty()
 		
+		/*
+		 * @param newNode - the node to add to the stack
+		 * Adds a node to the top of the stack
+		 */
 		private void push(Entity newNode) {
 			if(isEmpty()) {
 				position[0] = newNode;
@@ -84,6 +92,10 @@ public class CourseSchedulerUtil<T> {
 			}
 		} // push()
 		
+		/*
+		 * @return node - the node that was on the top of the stack
+		 * Removes the top node of the stack and returns it
+		 */
 		private Entity pop() {
 			Entity node = position[0];
 			// shift rest of stack into array index at 0
@@ -100,6 +112,10 @@ public class CourseSchedulerUtil<T> {
 			return node;
 		} // pop()
 		
+		/*
+		 * @return topEntity - the top node of the stack
+		 * Returns the top node without removing it
+		 */
 		private Entity peek() {
 			Entity topEntity = position[0];
 			return topEntity;
@@ -109,10 +125,10 @@ public class CourseSchedulerUtil<T> {
 	
     
     /**
-     * Graph object
+     * Graph variables
      */
-    private GraphImpl<T> graphImpl;
-    private ArrayList<T> visited;
+    private GraphImpl<T> graphImpl; // the graph itself
+    private ArrayList<T> visited; // arrayList to track what's been visited while traversing
     
     /**
      * constructor to initialize a graph object
@@ -175,7 +191,6 @@ public class CourseSchedulerUtil<T> {
 		
 		catch(Exception e) {
 			System.out.println("Caught exception while parsing JSON file. ");
-			System.out.println(e);
 			e.printStackTrace();
 			return null; // no array to return if there is an exception
 		} // catch		
@@ -196,7 +211,7 @@ public class CourseSchedulerUtil<T> {
         	for(int j = 0; j < array.length; j++) {
         		graphImpl.addEdge((T) entities[i].getName(), (T) array[j]);
         	}
-    	}	
+    	} // outer for	
     	
     } // constructGraph()
     
@@ -209,20 +224,21 @@ public class CourseSchedulerUtil<T> {
     	Set<T> courseSet = graphImpl.getAllVertices();
     	Iterator itr = courseSet.iterator();
     	ArrayList<T> array = new ArrayList<T>();
-
+    	// iterate through the set of courses and check their prerequisites
     	while(itr.hasNext()) {
     		T course = (T) itr.next();
     		array.add(course);
     		List<T> prereqList = graphImpl.getAdjacentVerticesOf(course);
     		for(int i = 0; i < prereqList.size(); i++) {
     			T prereq = prereqList.get(i);
-
+    			 // add this prereq to the array if it isn't already in it
     			if(!array.contains(prereq)) {
         			array.add(prereq);
     			}
     		}	
     	} // while
 		
+    	// populate the HashSet to be returned
     	HashSet<T> returnSet = new HashSet<T>();
     	for(int i = 0; i < array.size(); i++) {
     		T value = array.get(i);
@@ -232,15 +248,12 @@ public class CourseSchedulerUtil<T> {
         return returnSet;
     } // getAllCourses()
     
-    
     /**
      * To check whether all given courses can be completed or not
      * @return boolean true if all given courses can be completed, otherwise false
-     * @throws Exception
      */
-    public boolean canCoursesBeCompleted() throws Exception {
+    public boolean canCoursesBeCompleted() {
        	int n = graphImpl.getAllVertices().size(); // get all courses
-    	//int n = getAllCourses().size();
     	System.out.println(n);
     	visited = new ArrayList<T>();
     	ArrayList<T> track = new ArrayList<T>();
@@ -249,32 +262,30 @@ public class CourseSchedulerUtil<T> {
     	Iterator<T> courseListItr = courses.iterator();
     	// go through vertices
     	for(int i = 0; i < n; i++) {
-    		System.out.println(i);
     		T current = courseListItr.next();
-    		System.out.println("Outer current is " + current);
+    		// call recursive helper method
     		if(helperBeCompleted(current, visited, track) == true) {
     			track.remove(current);
-    			continue;
+    			continue; // keep going if helper keeps returning true
     		}
     		else {
-    			System.out.println("HERE?");
     			return false;
     		}
     	}
-		System.out.println("ENd of main.");
     	return true;
     } // canCoursesBeCompleted()
     
-    private boolean helperBeCompleted(T current, ArrayList<T> visited, ArrayList<T> track) { // TODO - keep testing this
-    	System.out.println("Starting helper method   ");
-    	System.out.println("Current is " + current);
+    /*
+     * @param current - current course being evaluated
+     * @param visited - the arraylist containing courses that have been "visited"
+     * @param track - arraylist containing the actual courses we need to track
+     */
+    private boolean helperBeCompleted(T current, ArrayList<T> visited, ArrayList<T> track) {
     	if(track.contains(current)) {
-    		System.out.println("in the track one ");
-    		return false;
+    		return false; // this means that we automatically fail because this course has been tracked
     	}
     	
     	if(visited.contains(current)) {
-    		System.out.println("so...this one?");
     		return true;
     	}
     	
@@ -286,75 +297,66 @@ public class CourseSchedulerUtil<T> {
     	// work on prereqs
     	List<T> adjacentList = graphImpl.getAdjacentVerticesOf(current);
     	if(adjacentList == null) {
-    		System.out.println("No adjacencies");
     		return true;
     	}
-		if(adjacentList != null) {
+		if(adjacentList != null) { // check so we don't get an exception
 			Iterator prereqs = adjacentList.iterator();
 			while(prereqs.hasNext()) {
 				current = (T) prereqs.next();
-				System.out.println("Current in helper while " + current);
+				// make the recursive call again
 				if(helperBeCompleted(current, visited, track)) {
 					track.remove(current);
 					continue;
 				}
 
 				else {
-					System.out.println("In this false part");
 					return false;
 				}
 			} // while
 		} // if check
 		
-		System.out.println("ENd of helper.");
 		track.remove(current);
 		return true;
 		//return false;
     } // helperBeCompleted()
     
-    
-    
     /**
      * The order of courses in which the courses has to be taken
      * @return the list of courses in the order it has to be taken
-     * @throws Exception when courses can't be completed in any order
      */
     public List<T> getSubjectOrder() throws Exception {  
        	int n = getAllCourses().size(); // get all courses
     	stack = new CourseStack(n); // create a stack
     	ArrayList<T> orderedArray = new ArrayList<T>();
     	ArrayList<T> sorted = new ArrayList<T>(7);
-    	
     	Set<T> courses = getAllCourses();
     	Iterator courseListItr = courses.iterator();
     	visited = new ArrayList<T>();
+    	// move through the courses
     	for(int j = 0; j < courses.size(); j++) {
-
         	T current = (T) courseListItr.next();
         	Entity cur = new Entity();
         	cur.setName(current);
-        	System.out.println("Outer current " + current);
         	if(!visited.contains(current)) {
-        		System.out.println("Visited array doesn't contain current.");
-        		//stack.push(cur);
-        		fixRecurse(n, sorted, stack, current);
-        		// TODO - stack isn't transferring back. We're losing CS 300
+        		// make a recursive call
+        		helperSubjectOrder(sorted, stack, current);
         	}
-
     	} // for
-
-    	System.out.println("Visited array.");
-    	System.out.println(visited);
-
     	return sorted;
     } // testSubjectOrder()
     
-    private void fixRecurse(int n, ArrayList<T> sorted, CourseStack stack, T current) {
+    /*
+     * recursive method to help move through courses while getting their proper order
+     * @param sorted - the sorted arraylist
+     * @param stack - the stack to keep track of where the method is at
+     * @param current - the current node being evaluated
+     */
+    private void helperSubjectOrder(ArrayList<T> sorted, CourseStack stack, T current) {
     	Entity newcur = new Entity();
 		newcur.setName(current);
     	stack.push(newcur);
-    	//System.out.println("Pushing " + newcur + " - " + current + " onto stack.");
 		visited.add(current);
+		// keep progressing while the stack has entries on it
     	while(!stack.isEmpty()) {
     		List<T> adjacentList = graphImpl.getAdjacentVerticesOf(current);
     		if(adjacentList != null) {
@@ -362,38 +364,54 @@ public class CourseSchedulerUtil<T> {
     			while(prereqs.hasNext()) {
     				Entity cur = new Entity();
     				T check = (T) prereqs.next();
-    				System.out.println(check);
     				cur.setName(check);
     				if(!visited.contains(check)) {
-    					//System.out.println("(recursive) Visited does not contain " + check);
-        				fixRecurse(n, sorted, stack, check);
+    					// call recursive method again
+        				helperSubjectOrder(sorted, stack, check);
     				}
-
-
     			}
     		} // if check
     		if(stack.isEmpty()) {
     			break;
     		}
-
-    		sorted.add((T) stack.pop().getName()); // TODO - just add to sorted; don't print
-    		
+    		// add top of the stack to the sorted order
+    		sorted.add((T) stack.pop().getName()); 
     	} // while stack isn't empty
  	
-    } // fixRecurse()
+    } // helperSubjectOrder()
         
     /**
      * The minimum course required to be taken for a given course
      * @param courseName 
      * @return the number of minimum courses needed for a given course
+     * @throws exception when input is invalid
      */
-    public int getMinimalCourseCompletion(T courseName) throws Exception {    	
-    	int count = 0;
-        count = helpGetMinimum(count, courseName); // call helper method
-        return count;
+    public int getMinimalCourseCompletion(T courseName) throws IllegalArgumentException {
+    	try {
+    		Set<T> checkList = getAllCourses();
+    		if(!checkList.contains(courseName)) {
+    			throw new IllegalArgumentException();
+    		}
+        	int count = 0;
+            count = helpGetMinimum(count, courseName); // call helper method
+            return count;
+    	} // try
+        
+        catch (IllegalArgumentException e) {
+        	System.out.println("Course name is not one of the available courses.");
+			e.printStackTrace();
+			return -1;
+		}
+        catch (Exception e) {
+        	e.printStackTrace();
+        	return -1;
+        }
     } // getMinimalCourseCompletion()
     
-    
+    /*
+     * @param count - the current count so far
+     * @param courseName - the course being evaluated now
+     */
     private int helpGetMinimum(int count, T courseName) {
     	// for each vertex with no predecessors
     	ArrayList<T> prereqs = (ArrayList<T>) graphImpl.getAdjacentVerticesOf(courseName);
@@ -403,19 +421,17 @@ public class CourseSchedulerUtil<T> {
     	Iterator itr = prereqs.iterator();
     	
     	for(int i = 0; i < prereqs.size(); i++) {
-    		try {
-    			T next = (T) prereqs.get(i);
-				count = count + helpGetMinimum(count, next); // recursive call
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-    		
-    	}
+    		T next = (T) prereqs.get(i);
+    		// recursive call
+			count = count + helpGetMinimum(count, next);
+    	} // for
     	count = count + prereqs.size();
     	return count;
     } // helpGetMinimum()
     
-    
+    /*
+     * Main method for testing
+     */
     public static void main(String[] args) throws FileNotFoundException {
     	CourseSchedulerUtil<String> util = new CourseSchedulerUtil<String>();
 
