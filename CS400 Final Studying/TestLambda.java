@@ -1,0 +1,103 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public class TestLambda {
+	public static void main(String [] args) {
+		// part 0...Collections.sort(someList<T implements Comparable>)
+		// sorts based on the compareTo method of T
+		List<String> words = Arrays.asList("buzz", "qat", "kazoo", "cookie");
+		Collections.sort(words);
+		System.out.println("sort based on natural ordering: " + words);
+		// but what if we don't want to sort things based on their 'natural ordering' ?
+		
+		System.out.println();
+//		// part 1...write a separate class to compare by Scrabble score
+		Comparator <String> scrabbleScore = new ScrabbleScoreComparator(); // use the interface as the type (on the left)
+		System.out.println(scrabbleScore.compare("often", "dog"));
+		Collections.sort(words, scrabbleScore);
+		System.out.println("sort based on scrabbleScore comparator: " + words);
+		
+		
+		System.out.println();
+//		// part 2...write an inner class to compare based on num vowels
+		// VowelComparator is declared below as a static inner class
+		Comparator<String> vowelScore = new VowelComparator();
+		Collections.sort(words, vowelScore);
+		System.out.println("sort based on vowelScore comparator: " + words);
+		System.out.println(vowelScore.compare("true", "treeeee"));
+		
+		
+		System.out.println();
+//		// part 3...write an anonymous inner class to compare by length
+		// this class is not named so we declare its type as a superclass or interface
+		// even though interfaces don't have constructors, we use ()
+		Comparator<String> lengthComparator = new Comparator<String>() { // use interface as type.
+			// define class here
+			@Override
+			public int compare(String s1, String s2) {
+				return s1.length() - s2.length();
+			}
+			
+		}; // end of anonymous inner class
+		
+		Collections.sort(words, lengthComparator);
+		System.out.println("sort based on length: " + words);
+		System.out.println(lengthComparator.compare("short", "lon1883"));
+		
+		
+		System.out.println();
+//		// part 4...write a lambda function
+		// this works because Comparator is a "functional interface"
+		// that is....an interface that contains a single public method
+		// and acts as a function on inputs, not on objects
+		Comparator<String> lambdaLength =
+				(String s1, String s2) -> s1.length() - s2.length();
+		Collections.sort(words, lambdaLength);
+		System.out.println("sort basd on lambda length");
+		System.out.println(lambdaLength.compare("thiso35353dasdfdsane", "hereisalnother2"));
+		
+		System.out.println();
+//		// part 5....use the lambda function as data....that is, as a parameter
+		// the compiler figures out the type based on the functional interface
+		Collections.sort(words, (thing1, thing2) -> thing1.length() - thing2.length());
+		System.out.println("sort based on length with lambda:" + words);
+		System.out.println();
+		
+		System.out.println();
+		// part 6.....java.util.function has other pre-made Functional Interfaces
+		
+		System.out.println();
+		// part 7....you can write your own Functional Interfaces
+		 
+		 
+}// main
+	
+	
+	// because this class is accessed from a static method, 
+	// it is declared static
+	static class VowelComparator implements Comparator<String>{
+		// compares two Strings based on number of vowels
+		// fewer number of vowels comes first
+		@Override
+		public int compare(String s1, String s2) {
+			return numVowels(s1) - numVowels(s2);
+		}
+		private int numVowels(String s) { // no static methods in inner classes
+			s = s.toLowerCase();
+			int result = 0;
+			for (int i=0; i < s.length(); i++) {
+				if ("aeiou".contains(s.substring(i, i+1))){
+					result++;
+				}
+			}
+			return result;
+		}// numVowels
+	}// VowelComparator
+
+}// class
+
+
+

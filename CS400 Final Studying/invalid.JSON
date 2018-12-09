@@ -1,0 +1,12 @@
+{
+	"courses": [
+	    {
+	        "name": "CS400",
+	        "prerequisites": ["CS300"]
+	    },
+	    {
+	        "name": "CS300",
+	        "prerequisites": ["CS400"]
+	    },
+	] 
+}

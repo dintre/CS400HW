@@ -1,0 +1,41 @@
+{
+	"courses": [
+    	{
+        	"name": "CS766",
+        	"prerequisites": ["CS300","CS367"]
+   	 	},
+	    {
+	        "name": "CS757",
+	        "prerequisites": ["CS552"]
+	    },
+	    {
+	        "name": "CS736",
+	        "prerequisites": ["CS537"]
+	    },
+	    {
+	        "name": "CS723",
+	        "prerequisites": ["CS200","CS525"]
+	    },
+	    {
+	        "name": "CS839",
+	        "prerequisites": []
+	    },
+	    {
+	        "name": "CS300",
+	        "prerequisites": ["CS200"]
+	    },
+	    {
+	        "name": "CS537",
+	        "prerequisites": ["CS367"]
+	    },
+	    {
+	        "name": "CS367",
+	        "prerequisites": ["CS354"]
+	    },
+	    {
+	        "name": "CS354",
+	        "prerequisites": []
+	    }
+	    
+	] 
+}
